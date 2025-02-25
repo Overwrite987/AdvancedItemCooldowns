@@ -1,0 +1,8 @@
+name: ${project.name}
+main: ru.overwrite.itemcooldowns.ItemCooldowns
+author: OverwriteMC
+api-version: 1.16
+version: ${project.version}
+commands:
+  advanceditemcooldowns:
+    aliases: [itemcooldowns]
