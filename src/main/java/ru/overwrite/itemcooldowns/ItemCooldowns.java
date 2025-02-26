@@ -2,6 +2,7 @@ package ru.overwrite.itemcooldowns;
 
 import com.google.common.collect.ImmutableSet;
 import lombok.Getter;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
@@ -32,6 +33,7 @@ public final class ItemCooldowns extends JavaPlugin {
             sender.sendMessage("§aУспешно перезагружено!");
             return true;
         });
+        new Metrics(this, 24928);
     }
 
     private void setupCooldownGroups(FileConfiguration config) {
