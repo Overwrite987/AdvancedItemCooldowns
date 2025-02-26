@@ -5,4 +5,5 @@ api-version: 1.16
 version: ${project.version}
 commands:
   advanceditemcooldowns:
+    permission: itemcooldown.admin
     aliases: [itemcooldowns]
