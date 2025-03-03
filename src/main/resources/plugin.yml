@@ -3,6 +3,7 @@ main: ru.overwrite.itemcooldowns.ItemCooldowns
 author: OverwriteMC
 api-version: 1.16
 version: ${project.version}
+softdepend: [AntiRelog, PowerAntiRelog, CombatLogX]
 commands:
   advanceditemcooldowns:
     permission: itemcooldown.admin

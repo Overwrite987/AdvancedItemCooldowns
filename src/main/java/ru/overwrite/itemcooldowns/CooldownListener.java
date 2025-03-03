@@ -13,13 +13,16 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import ru.overwrite.itemcooldowns.groups.CooldownGroup;
 import ru.overwrite.itemcooldowns.groups.WorkFactor;
+import ru.overwrite.itemcooldowns.utils.pvp.PVPProvider;
 
 public final class CooldownListener implements Listener {
 
     private final ItemCooldowns plugin;
+    private final PVPProvider pvpProvider;
 
     public CooldownListener(ItemCooldowns plugin) {
         this.plugin = plugin;
+        this.pvpProvider = plugin.getPvpProvider();
     }
 
     @EventHandler
@@ -78,6 +81,9 @@ public final class CooldownListener implements Listener {
             }
             if (!group.items().contains(itemMaterial)) {
                 continue;
+            }
+            if (group.applyOnlyInPvp() && !pvpProvider.isInPvp(p)) {
+                return;
             }
             if (group.ignoreCooldown() && p.hasCooldown(itemMaterial)) {
                 continue;

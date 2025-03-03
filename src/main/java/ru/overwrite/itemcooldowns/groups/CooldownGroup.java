@@ -13,5 +13,6 @@ public record CooldownGroup(
         List<World> activeWorlds,
         Set<Material> items,
         boolean ignoreCooldown,
-        boolean applyToAll) {
+        boolean applyToAll,
+        boolean applyOnlyInPvp) {
 }

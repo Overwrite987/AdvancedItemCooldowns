@@ -7,10 +7,15 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.overwrite.itemcooldowns.groups.CooldownGroup;
 import ru.overwrite.itemcooldowns.groups.WorkFactor;
 import ru.overwrite.itemcooldowns.utils.Utils;
+import ru.overwrite.itemcooldowns.utils.pvp.AntiRelogProvider;
+import ru.overwrite.itemcooldowns.utils.pvp.CombatLogXProvider;
+import ru.overwrite.itemcooldowns.utils.pvp.PVPProvider;
+import ru.overwrite.itemcooldowns.utils.pvp.PowerAntiRelogProvider;
 
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -21,11 +26,14 @@ import java.util.Set;
 public final class ItemCooldowns extends JavaPlugin {
 
     private Set<CooldownGroup> cooldownGroups;
+    private PVPProvider pvpProvider;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        getServer().getPluginManager().registerEvents(new CooldownListener(this), this);
+        PluginManager pluginManager = getServer().getPluginManager();
+        setupPvpProvider(pluginManager);
+        pluginManager.registerEvents(new CooldownListener(this), this);
         getServer().getScheduler().runTaskAsynchronously(this, () -> setupCooldownGroups(getConfig()));
         getCommand("advanceditemcooldowns").setExecutor((sender, command, label, args) -> {
             reloadConfig();
@@ -34,6 +42,23 @@ public final class ItemCooldowns extends JavaPlugin {
             return true;
         });
         new Metrics(this, 24928);
+    }
+
+    private void setupPvpProvider(PluginManager pluginManager) {
+        if (pluginManager.isPluginEnabled("AntiRelog")) {
+            pvpProvider = new AntiRelogProvider(pluginManager.getPlugin("AntiRelog"));
+            getLogger().info("AntiRelog has been set as PVP provider");
+            return;
+        }
+        if (pluginManager.isPluginEnabled("CombatLogX")) {
+            pvpProvider = new CombatLogXProvider(pluginManager.getPlugin("CombatLogX"));
+            getLogger().info("CombatLogX has been set as PVP provider");
+            return;
+        }
+        if (pluginManager.isPluginEnabled("PowerAntiRelog")) {
+            pvpProvider = new PowerAntiRelogProvider();
+            getLogger().info("PowerAntiRelog has been set as PVP provider");
+        }
     }
 
     private void setupCooldownGroups(FileConfiguration config) {
@@ -58,7 +83,8 @@ public final class ItemCooldowns extends JavaPlugin {
             }
             boolean ignoreCooldown = groupSection.getBoolean("ignore_cooldown", true);
             boolean applyToAll = groupSection.getBoolean("apply_to_all", false);
-            cooldownGroups.add(new CooldownGroup(groupId, workFactors, cooldown, activeWorlds, items, ignoreCooldown, applyToAll));
+            boolean applyOnlyInPvp = groupSection.getBoolean("apply_only_in_pvp", false);
+            cooldownGroups.add(new CooldownGroup(groupId, workFactors, cooldown, activeWorlds, items, ignoreCooldown, applyToAll, applyOnlyInPvp));
         }
         this.cooldownGroups = ImmutableSet.copyOf(cooldownGroups);
         long endTime = System.currentTimeMillis();
