@@ -39,8 +39,10 @@ public final class CooldownListener implements Listener {
             });
         }
         if (action.equals(Action.RIGHT_CLICK_BLOCK)) {
-            processCooldown(p, mainHandItem, WorkFactor.RIGHT_CLICK_BLOCK);
-            processCooldown(p, offHandItem, WorkFactor.RIGHT_CLICK_BLOCK);
+            Bukkit.getScheduler().runTask(plugin, () -> { // Should be like this due to interaction cancellation on cooldown apply (WHY BUKKIT!?!?! WHYYYY)
+                processCooldown(p, mainHandItem, WorkFactor.RIGHT_CLICK_BLOCK);
+                processCooldown(p, offHandItem, WorkFactor.RIGHT_CLICK_BLOCK);
+            });
         }
     }
 
