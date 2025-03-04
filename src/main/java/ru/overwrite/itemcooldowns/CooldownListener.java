@@ -83,7 +83,7 @@ public final class CooldownListener implements Listener {
                 continue;
             }
             if (group.applyOnlyInPvp() && !pvpProvider.isInPvp(p)) {
-                return;
+                continue;
             }
             if (group.ignoreCooldown() && p.hasCooldown(itemMaterial)) {
                 continue;
@@ -95,6 +95,7 @@ public final class CooldownListener implements Listener {
             } else {
                 p.setCooldown(itemMaterial, group.cooldown());
             }
+            break;
         }
     }
 }
