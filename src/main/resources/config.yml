@@ -20,6 +20,7 @@ cooldown_groups:
     # На какие предметы необходимо накладывать кулдаун.
     items:
       - MINECART
+      - TNT_MINECART
       - CHEST_MINECART
       - HOPPER_MINECART
       - COMMAND_MINECART

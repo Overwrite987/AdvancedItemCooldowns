@@ -12,10 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import ru.overwrite.itemcooldowns.groups.CooldownGroup;
 import ru.overwrite.itemcooldowns.groups.WorkFactor;
 import ru.overwrite.itemcooldowns.utils.Utils;
-import ru.overwrite.itemcooldowns.utils.pvp.AntiRelogProvider;
-import ru.overwrite.itemcooldowns.utils.pvp.CombatLogXProvider;
-import ru.overwrite.itemcooldowns.utils.pvp.PVPProvider;
-import ru.overwrite.itemcooldowns.utils.pvp.PowerAntiRelogProvider;
+import ru.overwrite.itemcooldowns.utils.pvp.*;
 
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -47,19 +44,25 @@ public final class ItemCooldowns extends JavaPlugin {
     private void setupPvpProvider(PluginManager pluginManager) {
         if (pluginManager.isPluginEnabled("AntiRelog")) {
             pvpProvider = new AntiRelogProvider(pluginManager.getPlugin("AntiRelog"));
-            getLogger().info("AntiRelog has been set as PVP provider");
+            getLogger().info("AntiRelog выбран в качестве PvP-провайдера");
             return;
         }
         if (pluginManager.isPluginEnabled("CombatLogX")) {
             pvpProvider = new CombatLogXProvider(pluginManager.getPlugin("CombatLogX"));
-            getLogger().info("CombatLogX has been set as PVP provider");
+            getLogger().info("CombatLogX выбран в качестве PvP-провайдера");
             return;
         }
         if (pluginManager.isPluginEnabled("PowerAntiRelog")) {
             pvpProvider = new PowerAntiRelogProvider();
-            getLogger().info("PowerAntiRelog has been set as PVP provider");
+            getLogger().info("PowerAntiRelog выбран в качестве PvP-провайдера");
+            return;
         }
-        getLogger().warning("No antirelog plugin is installed. Unable to setup PVP provider");
+        if (pluginManager.isPluginEnabled("GreatCombat")) {
+            pvpProvider = new GreatCombatProvider();
+            getLogger().info("GreatCombat выбран в качестве PvP-провайдера");
+            return;
+        }
+        getLogger().warning("Не установлен ни один антирелог-плагин. Невозможно установить PvP-провайдер");
     }
 
     private void setupCooldownGroups(FileConfiguration config) {
@@ -73,13 +76,13 @@ public final class ItemCooldowns extends JavaPlugin {
             }
             int cooldown = groupSection.getInt("cooldown", -1);
             if (cooldown < 1) {
-                getLogger().warning("Cooldown should always be > 1. Skipping group " + groupId);
+                getLogger().warning("Кулдаун должен быть больше 1. Пропускаем группу " + groupId);
                 continue;
             }
             List<World> activeWorlds = Utils.getWorldList(groupSection.getStringList("active_worlds"));
             Set<Material> items = Utils.createMaterialSet(groupSection.getStringList("items"));
             if (items.isEmpty()) {
-                getLogger().warning("No items presents in group. Skipping group " + groupId);
+                getLogger().warning("Нет предметов в группе. Пропускаем группу " + groupId);
                 continue;
             }
             boolean ignoreCooldown = groupSection.getBoolean("ignore_cooldown", true);
@@ -89,6 +92,6 @@ public final class ItemCooldowns extends JavaPlugin {
         }
         this.cooldownGroups = ImmutableSet.copyOf(cooldownGroups);
         long endTime = System.currentTimeMillis();
-        getLogger().info("Created " + cooldownGroups.size() + " cooldown groups in " + (endTime - startTime) + " ms");
+        getLogger().info("Создано " + cooldownGroups.size() + " групп кулдауна за " + (endTime - startTime) + " мс");
     }
 }

@@ -46,7 +46,7 @@ public final class CooldownListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onInteractEntity(PlayerInteractEntityEvent event) {
         Player p = event.getPlayer();
         PlayerInventory inventory = p.getInventory();
@@ -59,7 +59,7 @@ public final class CooldownListener implements Listener {
         processCooldown(p, offHandItem, WorkFactor.ENTITY_INTERACT);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onConsume(PlayerItemConsumeEvent event) {
         Player p = event.getPlayer();
         ItemStack item = event.getItem();
