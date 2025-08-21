@@ -11,9 +11,14 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import ru.overwrite.itemcooldowns.groups.CooldownGroup;
 import ru.overwrite.itemcooldowns.groups.WorkFactor;
 import ru.overwrite.itemcooldowns.utils.pvp.PVPProvider;
+
+import java.util.Set;
 
 public final class CooldownListener implements Listener {
 
@@ -90,6 +95,14 @@ public final class CooldownListener implements Listener {
             if (group.ignoreCooldown() && p.hasCooldown(itemMaterial)) {
                 continue;
             }
+            if (isPotion(itemMaterial)) {
+                if (!group.potionEffects().isEmpty()) {
+                    PotionMeta meta = (PotionMeta) usedItem.getItemMeta();
+                    if (meta == null || !hasBlockedEffect(meta, group.potionEffects())) {
+                        continue;
+                    }
+                }
+            }
             if (group.applyToAll()) {
                 for (Material material : group.items()) {
                     p.setCooldown(material, group.cooldown());
@@ -99,5 +112,21 @@ public final class CooldownListener implements Listener {
             }
             break;
         }
+    }
+
+    private boolean isPotion(Material material) {
+        return material == Material.POTION || material == Material.SPLASH_POTION || material == Material.LINGERING_POTION; // А где материал тег на зелья, а, пипер?
+    }
+
+    private boolean hasBlockedEffect(PotionMeta meta, Set<PotionEffectType> allowedEffects) {
+        if (allowedEffects.isEmpty()) {
+            return true;
+        }
+        for (PotionEffect effect : meta.getCustomEffects()) {
+            if (allowedEffects.contains(effect.getType())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

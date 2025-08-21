@@ -9,6 +9,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffectType;
 import ru.overwrite.itemcooldowns.groups.CooldownGroup;
 import ru.overwrite.itemcooldowns.groups.WorkFactor;
 import ru.overwrite.itemcooldowns.utils.Utils;
@@ -85,6 +86,7 @@ public final class ItemCooldowns extends JavaPlugin {
                 getLogger().warning("Нет предметов в группе. Пропускаем группу " + groupId);
                 continue;
             }
+            Set<PotionEffectType> potionEffects = Utils.getPotionEffectSet(groupSection.getStringList("potion_effects"));
             boolean ignoreCooldown = groupSection.getBoolean("ignore_cooldown", true);
             boolean applyToAll = groupSection.getBoolean("apply_to_all", false);
             boolean applyOnlyInPvp = pvpProvider != null && groupSection.getBoolean("apply_only_in_pvp", false);

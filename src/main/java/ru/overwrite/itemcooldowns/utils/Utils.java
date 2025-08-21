@@ -4,11 +4,9 @@ import lombok.experimental.UtilityClass;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @UtilityClass
 public class Utils {
@@ -33,6 +31,20 @@ public class Utils {
             }
         }
         return materialSet;
+    }
+
+    public Set<PotionEffectType> getPotionEffectSet(List<String> effectNames) {
+        if (effectNames.isEmpty() || (effectNames.size() == 1 && effectNames.get(0).equals("*"))) {
+            return Set.of();
+        }
+        Set<PotionEffectType> effects = new HashSet<>();
+        for (String name : effectNames) {
+            PotionEffectType effect = PotionEffectType.getByName(name.toUpperCase());
+            if (effect != null) {
+                effects.add(effect);
+            }
+        }
+        return effects;
     }
 
     public String[] getWorkFactorsAsStringArray(String str) {
