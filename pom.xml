@@ -161,9 +161,9 @@
         <dependency>
             <groupId>dev.enco</groupId>
             <artifactId>GreatCombat</artifactId>
-            <version>1.3.0</version>
+            <version>1.7.1</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/libs/GreatCombat-1.3-ru.jar</systemPath>
+            <systemPath>${project.basedir}/libs/GreatCombat-1.7.1.jar</systemPath>
         </dependency>
     </dependencies>
 </project>
