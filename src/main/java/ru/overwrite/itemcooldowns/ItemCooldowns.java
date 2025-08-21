@@ -88,7 +88,19 @@ public final class ItemCooldowns extends JavaPlugin {
             boolean ignoreCooldown = groupSection.getBoolean("ignore_cooldown", true);
             boolean applyToAll = groupSection.getBoolean("apply_to_all", false);
             boolean applyOnlyInPvp = pvpProvider != null && groupSection.getBoolean("apply_only_in_pvp", false);
-            cooldownGroups.add(new CooldownGroup(groupId, workFactors, cooldown, activeWorlds, items, ignoreCooldown, applyToAll, applyOnlyInPvp));
+            cooldownGroups.add(
+                    new CooldownGroup(
+                            groupId,
+                            workFactors,
+                            cooldown,
+                            activeWorlds,
+                            items,
+                            potionEffects,
+                            ignoreCooldown,
+                            applyToAll,
+                            applyOnlyInPvp
+                    )
+            );
         }
         this.cooldownGroups = ImmutableSet.copyOf(cooldownGroups);
         long endTime = System.currentTimeMillis();

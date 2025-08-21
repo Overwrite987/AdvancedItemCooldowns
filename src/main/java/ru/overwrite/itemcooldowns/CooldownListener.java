@@ -33,13 +33,13 @@ public final class CooldownListener implements Listener {
         ItemStack offHandItem = inventory.getItemInOffHand();
         Action action = event.getAction();
         if (action.equals(Action.RIGHT_CLICK_AIR)) {
-            Bukkit.getScheduler().runTask(plugin, () -> { // Should be like this due to interaction cancellation on cooldown apply (WHY BUKKIT!?!?! WHYYYY)
+            Bukkit.getScheduler().runTask(plugin, () -> { // Должно быть так из-за отмены взаимодействия при применении кулдауна (ПОЧЕМУ ТАК НАХУЙ!?!?!)
                 processCooldown(p, mainHandItem, WorkFactor.RIGHT_CLICK_AIR);
                 processCooldown(p, offHandItem, WorkFactor.RIGHT_CLICK_AIR);
             });
         }
         if (action.equals(Action.RIGHT_CLICK_BLOCK)) {
-            Bukkit.getScheduler().runTask(plugin, () -> { // Should be like this due to interaction cancellation on cooldown apply (WHY BUKKIT!?!?! WHYYYY)
+            Bukkit.getScheduler().runTask(plugin, () -> { // Должно быть так из-за отмены взаимодействия при применении кулдауна (ПОЧЕМУ ТАК НАХУЙ!?!?!)
                 processCooldown(p, mainHandItem, WorkFactor.RIGHT_CLICK_BLOCK);
                 processCooldown(p, offHandItem, WorkFactor.RIGHT_CLICK_BLOCK);
             });
