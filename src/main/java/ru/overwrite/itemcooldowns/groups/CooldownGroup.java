@@ -8,7 +8,10 @@ import org.bukkit.potion.PotionEffectType;
 import ru.overwrite.itemcooldowns.ItemCooldowns;
 import ru.overwrite.itemcooldowns.utils.Utils;
 
-import java.util.*;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public record CooldownGroup(
         String id,

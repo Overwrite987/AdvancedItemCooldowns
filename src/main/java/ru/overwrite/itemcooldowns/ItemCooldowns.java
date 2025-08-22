@@ -5,8 +5,8 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.overwrite.itemcooldowns.groups.CooldownGroup;
+import ru.overwrite.itemcooldowns.pvpcheckers.PVPChecker;
 import ru.overwrite.itemcooldowns.services.CooldownService;
-import ru.overwrite.itemcooldowns.pvpcheckers.*;
 
 import java.util.Set;
 import java.util.logging.Logger;

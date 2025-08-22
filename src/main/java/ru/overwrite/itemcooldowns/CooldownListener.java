@@ -12,7 +12,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import ru.overwrite.itemcooldowns.groups.WorkFactor;
 import ru.overwrite.itemcooldowns.services.CooldownService;
-import ru.overwrite.itemcooldowns.pvpcheckers.PVPChecker;
 
 public final class CooldownListener implements Listener {
 
