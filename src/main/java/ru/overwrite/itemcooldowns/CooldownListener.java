@@ -18,6 +18,7 @@ import ru.overwrite.itemcooldowns.groups.CooldownGroup;
 import ru.overwrite.itemcooldowns.groups.WorkFactor;
 import ru.overwrite.itemcooldowns.utils.pvp.PVPProvider;
 
+import java.util.List;
 import java.util.Set;
 
 public final class CooldownListener implements Listener {
@@ -119,14 +120,14 @@ public final class CooldownListener implements Listener {
     }
 
     private boolean hasBlockedEffect(PotionMeta meta, Set<PotionEffectType> allowedEffects) {
-        if (allowedEffects.isEmpty()) {
-            return true;
-        }
-        for (PotionEffect effect : meta.getCustomEffects()) {
-            if (allowedEffects.contains(effect.getType())) {
-                return true;
+        if (allowedEffects.isEmpty()) return true;
+        List<PotionEffect> effects = meta.getCustomEffects();
+        if (effects.size() != allowedEffects.size()) return false;
+        for (PotionEffect effect : effects) {
+            if (!allowedEffects.contains(effect.getType())) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
 }
