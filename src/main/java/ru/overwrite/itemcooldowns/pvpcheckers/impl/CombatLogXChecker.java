@@ -1,15 +1,16 @@
-package ru.overwrite.itemcooldowns.utils.pvp;
+package ru.overwrite.itemcooldowns.pvpcheckers.impl;
 
 import com.github.sirblobman.combatlogx.api.ICombatLogX;
 import com.github.sirblobman.combatlogx.api.manager.ICombatManager;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import ru.overwrite.itemcooldowns.pvpcheckers.PVPChecker;
 
-public class CombatLogXProvider implements PVPProvider {
+public class CombatLogXChecker implements PVPChecker {
 
     private final ICombatLogX combatLogX;
 
-    public CombatLogXProvider(Plugin plugin) {
+    public CombatLogXChecker(Plugin plugin) {
         this.combatLogX = (ICombatLogX) plugin;
     }
 

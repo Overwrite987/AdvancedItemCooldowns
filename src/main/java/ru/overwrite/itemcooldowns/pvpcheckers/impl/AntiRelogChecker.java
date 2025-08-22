@@ -1,14 +1,15 @@
-package ru.overwrite.itemcooldowns.utils.pvp;
+package ru.overwrite.itemcooldowns.pvpcheckers.impl;
 
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import ru.leymooo.antirelog.Antirelog;
+import ru.overwrite.itemcooldowns.pvpcheckers.PVPChecker;
 
-public class AntiRelogProvider implements PVPProvider {
+public class AntiRelogChecker implements PVPChecker {
 
     private final Antirelog antirelog;
 
-    public AntiRelogProvider(Plugin plugin) {
+    public AntiRelogChecker(Plugin plugin) {
         this.antirelog = (Antirelog) plugin;
     }
 
