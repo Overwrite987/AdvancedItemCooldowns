@@ -3,6 +3,7 @@ package ru.overwrite.itemcooldowns;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -16,16 +17,14 @@ import ru.overwrite.itemcooldowns.pvpcheckers.PVPChecker;
 public final class CooldownListener implements Listener {
 
     private final ItemCooldowns plugin;
-    private final PVPChecker pvpChecker;
     private final CooldownService cooldownService;
 
     public CooldownListener(ItemCooldowns plugin) {
         this.plugin = plugin;
-        this.pvpChecker = plugin.getPvpChecker();
         this.cooldownService = plugin.getCooldownService();
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onInteract(PlayerInteractEvent event) {
         Player p = event.getPlayer();
         PlayerInventory pInv = p.getInventory();
@@ -35,7 +34,7 @@ public final class CooldownListener implements Listener {
         runCooldownTask(p, pInv.getItemInOffHand(), factor);
     }
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onInteractEntity(PlayerInteractEntityEvent event) {
         Player p = event.getPlayer();
         PlayerInventory inventory = p.getInventory();
@@ -48,7 +47,7 @@ public final class CooldownListener implements Listener {
         runCooldownTask(p, offHandItem, WorkFactor.ENTITY_INTERACT);
     }
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onConsume(PlayerItemConsumeEvent event) {
         Player p = event.getPlayer();
         ItemStack item = event.getItem();
