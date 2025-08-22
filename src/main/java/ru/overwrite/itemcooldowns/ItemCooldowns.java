@@ -9,6 +9,7 @@ import ru.overwrite.itemcooldowns.services.CooldownService;
 import ru.overwrite.itemcooldowns.pvpcheckers.*;
 
 import java.util.Set;
+import java.util.logging.Logger;
 
 @Getter
 public final class ItemCooldowns extends JavaPlugin {
@@ -17,8 +18,12 @@ public final class ItemCooldowns extends JavaPlugin {
     private PVPChecker pvpChecker;
     private CooldownService cooldownService;
 
+    @Getter
+    private static Logger pluginLogger;
+
     @Override
     public void onEnable() {
+        pluginLogger = getPluginLogger();
         saveDefaultConfig();
         PluginManager pluginManager = getServer().getPluginManager();
         pvpChecker = PVPChecker.get(this);

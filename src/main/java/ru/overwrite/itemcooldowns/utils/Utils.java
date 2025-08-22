@@ -1,25 +1,38 @@
 package ru.overwrite.itemcooldowns.utils;
 
+import com.google.common.collect.ImmutableSet;
 import lombok.experimental.UtilityClass;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.potion.PotionEffectType;
+import ru.overwrite.itemcooldowns.ItemCooldowns;
 
 import java.util.*;
 
 @UtilityClass
 public class Utils {
 
-    public List<World> getWorldList(List<String> worldNames) {
+    public Set<UUID> getWorldUIDs(List<String> worldNames) {
+        List<UUID> result;
         if (!worldNames.isEmpty() && worldNames.get(0).equals("*")) {
-            return Bukkit.getWorlds();
+            final List<World> worlds = Bukkit.getWorlds();
+            result = new ArrayList<>(worlds.size());
+            for (World w : worlds) {
+                result.add(w.getUID());
+            }
+        } else {
+            result = new ArrayList<>(worldNames.size());
+            for (String w : worldNames) {
+                final World world = Bukkit.getWorld(w);
+                if (world != null) {
+                    result.add(world.getUID());
+                } else {
+                    ItemCooldowns.getPluginLogger().warning("Не удалось найти мир с именем '" + w + "'!");
+                }
+            }
         }
-        final List<World> worldList = new ArrayList<>(worldNames.size());
-        for (String w : worldNames) {
-            worldList.add(Bukkit.getWorld(w));
-        }
-        return worldList;
+        return ImmutableSet.copyOf(result);
     }
 
     public Set<Material> createMaterialSet(List<String> stringList) {

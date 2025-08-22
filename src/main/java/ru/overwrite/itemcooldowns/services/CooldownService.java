@@ -36,7 +36,7 @@ public final class CooldownService {
     private boolean shouldApplyCooldown(Player player, ItemStack item, WorkFactor workFactor, CooldownGroup group) {
         Material material = item.getType();
         if (!group.workFactors().contains(workFactor)) return false;
-        if (!group.activeWorlds().contains(player.getWorld())) return false;
+        if (!group.activeWorlds().contains(player.getWorld().getUID())) return false;
         if (!group.items().contains(material)) return false;
         if (group.applyOnlyInPvp() && !pvpChecker.isInPvp(player)) return false;
         if (group.ignoreCooldown() && player.hasCooldown(material)) return false;
