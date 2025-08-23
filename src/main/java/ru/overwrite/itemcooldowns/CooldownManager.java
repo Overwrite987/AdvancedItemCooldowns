@@ -37,7 +37,7 @@ public final class CooldownManager {
     public void setupCooldownGroups() {
         FileConfiguration config = plugin.getConfig();
         long startTime = System.currentTimeMillis();
-        final Set<CooldownGroup> cooldownGroups = new HashSet<>();
+        ImmutableSet.Builder<CooldownGroup> cooldownGroupsBuilder = ImmutableSet.builder();
         for (String groupId : config.getConfigurationSection("cooldown_groups").getKeys(false)) {
             ConfigurationSection groupSection = config.getConfigurationSection("cooldown_groups." + groupId);
             Set<WorkFactor> workFactors = EnumSet.noneOf(WorkFactor.class);
@@ -79,7 +79,7 @@ public final class CooldownManager {
                     )
             );
         }
-        this.cooldownGroups = ImmutableSet.copyOf(cooldownGroups);
+        this.cooldownGroups = cooldownGroupsBuilder.build();
         long endTime = System.currentTimeMillis();
         plugin.getLogger().info("Создано " + cooldownGroups.size() + " групп кулдауна за " + (endTime - startTime) + " мс");
     }
