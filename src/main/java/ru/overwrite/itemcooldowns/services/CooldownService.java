@@ -40,8 +40,7 @@ public final class CooldownService {
         if (!group.items().contains(material)) return false;
         if (group.applyOnlyInPvp() && !pvpChecker.isInPvp(player)) return false;
         if (group.ignoreCooldown() && player.hasCooldown(material)) return false;
-        if (isPotion(material) && !potionMatches(item, group.potionEffects())) return false;
-        return true;
+        return !isPotion(material) || potionMatches(item, group.potionEffects());
     }
 
     private void applyCooldown(Player player, ItemStack item, CooldownGroup group) {
