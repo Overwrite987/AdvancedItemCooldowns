@@ -11,7 +11,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.PotionMeta;
+import ru.overwrite.itemcooldowns.groups.CooldownGroup;
 import ru.overwrite.itemcooldowns.groups.WorkFactor;
+import ru.overwrite.itemcooldowns.utils.TimedExpiringMap;
 
 public final class CooldownListener implements Listener {
 
@@ -56,6 +59,25 @@ public final class CooldownListener implements Listener {
     }
 
     private void runCooldownTask(Cancellable event, Player player, ItemStack item, WorkFactor factor) {
-        Bukkit.getScheduler().runTask(plugin, () -> cooldownManager.process(event, player, item, factor));
+        if (item.getType().isAir()) {
+            return;
+        }
+        if (cooldownManager.isPotion(item.getType())) {
+            for (CooldownGroup group : cooldownManager.getCooldownGroups()) {
+                TimedExpiringMap<String, ItemStack> cooldowns = group.playerCooldowns();
+                if (cooldowns == null) {
+                    continue;
+                }
+                ItemStack cooldownItem = cooldowns.get(player.getName());
+                if (cooldownItem != null) {
+                    PotionMeta meta = (PotionMeta) cooldownItem.getItemMeta();
+                    if (meta.equals(item.getItemMeta())) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+            }
+        }
+        Bukkit.getScheduler().runTask(plugin, () -> cooldownManager.process(player, item, factor));
     }
 }

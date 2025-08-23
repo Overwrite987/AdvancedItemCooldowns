@@ -7,7 +7,6 @@ import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffectType;
@@ -85,25 +84,11 @@ public final class CooldownManager {
         plugin.getLogger().info("Создано " + cooldownGroups.size() + " групп кулдауна за " + (endTime - startTime) + " мс");
     }
 
-    public void process(Cancellable event, Player player, ItemStack item, WorkFactor workFactor) {
+    public void process(Player player, ItemStack item, WorkFactor workFactor) {
         for (CooldownGroup group : cooldownGroups) {
             if (shouldApplyCooldown(player, item, workFactor, group)) {
                 applyCooldown(player, item, group);
                 return;
-            }
-            if (isPotion(item.getType())) {
-                TimedExpiringMap<String, ItemStack> cooldowns = group.playerCooldowns();
-                if (cooldowns == null) {
-                    continue;
-                }
-                ItemStack cooldownItem = cooldowns.get(player.getName());
-                if (cooldownItem != null) {
-                    PotionMeta meta = (PotionMeta) cooldownItem.getItemMeta();
-                    if (meta.equals(item.getItemMeta())) {
-                        event.setCancelled(true);
-                        return;
-                    }
-                }
             }
         }
     }
@@ -132,7 +117,7 @@ public final class CooldownManager {
     }
 
     private void applyCooldown(Player player, ItemStack item, CooldownGroup group) {
-        if (isPotion(item.getType())) {
+        if (isPotion(item.getType()) && !group.potionEffects().isEmpty()) {
             group.playerCooldowns().put(player.getName(), item, group.cooldown() * 50L);
             return;
         }
