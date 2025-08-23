@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
 import ru.overwrite.itemcooldowns.groups.CooldownGroup;
 import ru.overwrite.itemcooldowns.groups.WorkFactor;
 import ru.overwrite.itemcooldowns.pvpcheckers.PVPChecker;
@@ -17,7 +18,6 @@ import ru.overwrite.itemcooldowns.utils.TimedExpiringMap;
 import ru.overwrite.itemcooldowns.utils.Utils;
 
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +37,7 @@ public final class CooldownManager {
     public void setupCooldownGroups() {
         FileConfiguration config = plugin.getConfig();
         long startTime = System.currentTimeMillis();
-        ImmutableSet.Builder<CooldownGroup> cooldownGroupsBuilder = ImmutableSet.builder();
+        ImmutableSet.Builder<@NotNull CooldownGroup> cooldownGroupsBuilder = ImmutableSet.builder();
         for (String groupId : config.getConfigurationSection("cooldown_groups").getKeys(false)) {
             ConfigurationSection groupSection = config.getConfigurationSection("cooldown_groups." + groupId);
             Set<WorkFactor> workFactors = EnumSet.noneOf(WorkFactor.class);
