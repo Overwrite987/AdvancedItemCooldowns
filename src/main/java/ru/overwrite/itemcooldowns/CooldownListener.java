@@ -2,6 +2,7 @@ package ru.overwrite.itemcooldowns;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -11,16 +12,15 @@ import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import ru.overwrite.itemcooldowns.groups.WorkFactor;
-import ru.overwrite.itemcooldowns.services.CooldownService;
 
 public final class CooldownListener implements Listener {
 
     private final ItemCooldowns plugin;
-    private final CooldownService cooldownService;
+    private final CooldownManager cooldownManager;
 
     public CooldownListener(ItemCooldowns plugin) {
         this.plugin = plugin;
-        this.cooldownService = plugin.getCooldownService();
+        this.cooldownManager = plugin.getCooldownManager();
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -28,9 +28,11 @@ public final class CooldownListener implements Listener {
         Player p = event.getPlayer();
         PlayerInventory pInv = p.getInventory();
         WorkFactor factor = WorkFactor.fromAction(event.getAction());
-        if (factor == null) return;
-        runCooldownTask(p, pInv.getItemInMainHand(), factor);
-        runCooldownTask(p, pInv.getItemInOffHand(), factor);
+        if (factor == null) {
+            return;
+        }
+        runCooldownTask(event, p, pInv.getItemInMainHand(), factor);
+        runCooldownTask(event, p, pInv.getItemInOffHand(), factor);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -42,18 +44,18 @@ public final class CooldownListener implements Listener {
         if (p.hasCooldown(mainHandItem.getType()) || p.hasCooldown(offHandItem.getType())) {
             event.setCancelled(true);
         }
-        runCooldownTask(p, mainHandItem, WorkFactor.ENTITY_INTERACT);
-        runCooldownTask(p, offHandItem, WorkFactor.ENTITY_INTERACT);
+        runCooldownTask(event, p, mainHandItem, WorkFactor.ENTITY_INTERACT);
+        runCooldownTask(event, p, offHandItem, WorkFactor.ENTITY_INTERACT);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onConsume(PlayerItemConsumeEvent event) {
         Player p = event.getPlayer();
         ItemStack item = event.getItem();
-        runCooldownTask(p, item, WorkFactor.CONSUME);
+        runCooldownTask(event, p, item, WorkFactor.CONSUME);
     }
 
-    private void runCooldownTask(Player player, ItemStack item, WorkFactor factor) {
-        Bukkit.getScheduler().runTask(plugin, () -> cooldownService.process(player, item, factor));
+    private void runCooldownTask(Cancellable event, Player player, ItemStack item, WorkFactor factor) {
+        Bukkit.getScheduler().runTask(plugin, () -> cooldownManager.process(event, player, item, factor));
     }
 }

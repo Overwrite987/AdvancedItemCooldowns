@@ -4,30 +4,25 @@ import lombok.Getter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import ru.overwrite.itemcooldowns.groups.CooldownGroup;
 import ru.overwrite.itemcooldowns.pvpcheckers.PVPChecker;
-import ru.overwrite.itemcooldowns.services.CooldownService;
-
-import java.util.Set;
 
 @Getter
 public final class ItemCooldowns extends JavaPlugin {
 
-    private Set<CooldownGroup> cooldownGroups;
     private PVPChecker pvpChecker;
-    private CooldownService cooldownService;
+    private CooldownManager cooldownManager;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
         PluginManager pluginManager = getServer().getPluginManager();
         pvpChecker = PVPChecker.get(this);
-        cooldownService = new CooldownService(this);
+        cooldownManager = new CooldownManager(this);
         pluginManager.registerEvents(new CooldownListener(this), this);
-        getServer().getScheduler().runTaskAsynchronously(this, () -> cooldownGroups = CooldownGroup.create(this));
+        getServer().getScheduler().runTaskAsynchronously(this, () -> cooldownManager.setupCooldownGroups());
         getCommand("advanceditemcooldowns").setExecutor((sender, command, label, args) -> {
             reloadConfig();
-            cooldownGroups = CooldownGroup.create(this);
+            cooldownManager.setupCooldownGroups();
             sender.sendMessage("§aУспешно перезагружено!");
             return true;
         });
