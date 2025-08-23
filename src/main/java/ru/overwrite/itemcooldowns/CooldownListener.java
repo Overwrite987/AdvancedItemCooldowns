@@ -1,57 +1,39 @@
 package ru.overwrite.itemcooldowns;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import ru.overwrite.itemcooldowns.groups.CooldownGroup;
 import ru.overwrite.itemcooldowns.groups.WorkFactor;
-import ru.overwrite.itemcooldowns.utils.pvp.PVPProvider;
-
-import java.util.Set;
+import ru.overwrite.itemcooldowns.services.CooldownService;
 
 public final class CooldownListener implements Listener {
 
     private final ItemCooldowns plugin;
-    private final PVPProvider pvpProvider;
+    private final CooldownService cooldownService;
 
     public CooldownListener(ItemCooldowns plugin) {
         this.plugin = plugin;
-        this.pvpProvider = plugin.getPvpProvider();
+        this.cooldownService = plugin.getCooldownService();
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onInteract(PlayerInteractEvent event) {
         Player p = event.getPlayer();
-        PlayerInventory inventory = p.getInventory();
-        ItemStack mainHandItem = inventory.getItemInMainHand();
-        ItemStack offHandItem = inventory.getItemInOffHand();
-        Action action = event.getAction();
-        if (action.equals(Action.RIGHT_CLICK_AIR)) {
-            Bukkit.getScheduler().runTask(plugin, () -> { // Должно быть так из-за отмены взаимодействия при применении кулдауна (ПОЧЕМУ ТАК НАХУЙ!?!?!)
-                processCooldown(p, mainHandItem, WorkFactor.RIGHT_CLICK_AIR);
-                processCooldown(p, offHandItem, WorkFactor.RIGHT_CLICK_AIR);
-            });
-        }
-        if (action.equals(Action.RIGHT_CLICK_BLOCK)) {
-            Bukkit.getScheduler().runTask(plugin, () -> { // Должно быть так из-за отмены взаимодействия при применении кулдауна (ПОЧЕМУ ТАК НАХУЙ!?!?!)
-                processCooldown(p, mainHandItem, WorkFactor.RIGHT_CLICK_BLOCK);
-                processCooldown(p, offHandItem, WorkFactor.RIGHT_CLICK_BLOCK);
-            });
-        }
+        PlayerInventory pInv = p.getInventory();
+        WorkFactor factor = WorkFactor.fromAction(event.getAction());
+        if (factor == null) return;
+        runCooldownTask(p, pInv.getItemInMainHand(), factor);
+        runCooldownTask(p, pInv.getItemInOffHand(), factor);
     }
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onInteractEntity(PlayerInteractEntityEvent event) {
         Player p = event.getPlayer();
         PlayerInventory inventory = p.getInventory();
@@ -60,73 +42,18 @@ public final class CooldownListener implements Listener {
         if (p.hasCooldown(mainHandItem.getType()) || p.hasCooldown(offHandItem.getType())) {
             event.setCancelled(true);
         }
-        processCooldown(p, mainHandItem, WorkFactor.ENTITY_INTERACT);
-        processCooldown(p, offHandItem, WorkFactor.ENTITY_INTERACT);
+        runCooldownTask(p, mainHandItem, WorkFactor.ENTITY_INTERACT);
+        runCooldownTask(p, offHandItem, WorkFactor.ENTITY_INTERACT);
     }
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onConsume(PlayerItemConsumeEvent event) {
         Player p = event.getPlayer();
         ItemStack item = event.getItem();
-        processCooldown(p, item, WorkFactor.CONSUME);
+        runCooldownTask(p, item, WorkFactor.CONSUME);
     }
 
-    private void processCooldown(Player p, ItemStack usedItem, WorkFactor workFactor) {
-        if (usedItem.getType().isAir()) {
-            return;
-        }
-        if (p.hasPermission("itemcooldown.bypass")) {
-            return;
-        }
-        Material itemMaterial = usedItem.getType();
-        for (CooldownGroup group : plugin.getCooldownGroups()) {
-            if (!group.workFactors().contains(workFactor)) {
-                continue;
-            }
-            if (!group.activeWorlds().contains(p.getWorld())) {
-                continue;
-            }
-            if (!group.items().contains(itemMaterial)) {
-                continue;
-            }
-            if (group.applyOnlyInPvp() && !pvpProvider.isInPvp(p)) {
-                continue;
-            }
-            if (group.ignoreCooldown() && p.hasCooldown(itemMaterial)) {
-                continue;
-            }
-            if (isPotion(itemMaterial)) {
-                if (!group.potionEffects().isEmpty()) {
-                    PotionMeta meta = (PotionMeta) usedItem.getItemMeta();
-                    if (meta == null || !hasBlockedEffect(meta, group.potionEffects())) {
-                        continue;
-                    }
-                }
-            }
-            if (group.applyToAll()) {
-                for (Material material : group.items()) {
-                    p.setCooldown(material, group.cooldown());
-                }
-            } else {
-                p.setCooldown(itemMaterial, group.cooldown());
-            }
-            break;
-        }
-    }
-
-    private boolean isPotion(Material material) {
-        return material == Material.POTION || material == Material.SPLASH_POTION || material == Material.LINGERING_POTION; // А где материал тег на зелья, а, пипер?
-    }
-
-    private boolean hasBlockedEffect(PotionMeta meta, Set<PotionEffectType> allowedEffects) {
-        if (allowedEffects.isEmpty()) {
-            return true;
-        }
-        for (PotionEffect effect : meta.getCustomEffects()) {
-            if (allowedEffects.contains(effect.getType())) {
-                return true;
-            }
-        }
-        return false;
+    private void runCooldownTask(Player player, ItemStack item, WorkFactor factor) {
+        Bukkit.getScheduler().runTask(plugin, () -> cooldownService.process(player, item, factor));
     }
 }
