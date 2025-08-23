@@ -2,6 +2,7 @@ package ru.overwrite.itemcooldowns.groups;
 
 import com.google.common.collect.ImmutableSet;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.potion.PotionEffectType;
@@ -10,14 +11,14 @@ import ru.overwrite.itemcooldowns.utils.Utils;
 
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 public record CooldownGroup(
         String id,
         Set<WorkFactor> workFactors,
         int cooldown,
-        Set<UUID> activeWorlds,
+        List<World> activeWorlds,
         Set<Material> items,
         Set<PotionEffectType> potionEffects,
         boolean ignoreCooldown,
@@ -39,7 +40,7 @@ public record CooldownGroup(
                 plugin.getLogger().warning("Кулдаун должен быть больше 1. Пропускаем группу " + groupId);
                 continue;
             }
-            Set<UUID> activeWorlds = Utils.getWorldUIDs(groupSection.getStringList("active_worlds"));
+            List<World> activeWorlds = Utils.getWorldList(groupSection.getStringList("active_worlds"));
             Set<Material> items = Utils.createMaterialSet(groupSection.getStringList("items"));
             if (items.isEmpty()) {
                 plugin.getLogger().warning("Нет предметов в группе. Пропускаем группу " + groupId);
