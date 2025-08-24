@@ -9,6 +9,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import ru.overwrite.itemcooldowns.groups.CooldownGroup;
@@ -56,9 +57,10 @@ public final class CooldownManager {
                 plugin.getLogger().warning("Нет предметов в группе. Пропускаем группу " + groupId);
                 continue;
             }
+            Set<PotionEffectType> baseEffects = Utils.getPotionEffectSet(groupSection.getStringList("base_effects"));
             Set<PotionEffectType> potionEffects = Utils.getPotionEffectSet(groupSection.getStringList("potion_effects"));
             TimedExpiringMap<String, ItemStack> playerCooldowns = null;
-            if (!potionEffects.isEmpty()) {
+            if (!baseEffects.isEmpty() || !potionEffects.isEmpty()) {
                 playerCooldowns = new TimedExpiringMap<>(TimeUnit.MILLISECONDS);
             }
             boolean ignoreCooldown = groupSection.getBoolean("ignore_cooldown", true);
@@ -71,6 +73,7 @@ public final class CooldownManager {
                             cooldown,
                             activeWorlds,
                             items,
+                            baseEffects,
                             potionEffects,
                             playerCooldowns,
                             ignoreCooldown,
@@ -110,14 +113,14 @@ public final class CooldownManager {
         if (group.ignoreCooldown() && player.hasCooldown(material)) {
             return false;
         }
-        if (isPotion(material) && !potionMatches(item, group.potionEffects())) {
+        if (isPotion(material) && !potionMatches(item, group.baseEffects(), group.potionEffects())) {
             return false;
         }
         return true;
     }
 
     private void applyCooldown(Player player, ItemStack item, CooldownGroup group) {
-        if (isPotion(item.getType()) && !group.potionEffects().isEmpty()) {
+        if (isPotion(item.getType()) && !group.baseEffects().isEmpty()) {
             group.playerCooldowns().put(player.getName(), item, group.cooldown() * 50L);
             return;
         }
@@ -134,16 +137,25 @@ public final class CooldownManager {
         return material == Material.POTION || material == Material.SPLASH_POTION || material == Material.LINGERING_POTION;
     }
 
-    private boolean potionMatches(ItemStack item, Set<PotionEffectType> allowedEffects) {
-        if (allowedEffects.isEmpty()) {
-            return true;
-        }
+    private boolean potionMatches(ItemStack item, Set<PotionEffectType> allowedBaseEffects, Set<PotionEffectType> allowedCustomEffects) {
         PotionMeta meta = (PotionMeta) item.getItemMeta();
         if (meta == null) {
             return false;
         }
-        PotionEffectType baseEffects = meta.getBasePotionData().getType().getEffectType();
-        return allowedEffects.contains(baseEffects);
+        if (!allowedBaseEffects.isEmpty()) {
+            PotionEffectType baseEffects = meta.getBasePotionData().getType().getEffectType();
+            if (allowedBaseEffects.contains(baseEffects)) {
+                return true;
+            }
+        }
+        if (allowedCustomEffects.isEmpty()) {
+            for (PotionEffect potionEffect : meta.getCustomEffects()) {
+                if (allowedCustomEffects.contains(potionEffect.getType())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
 

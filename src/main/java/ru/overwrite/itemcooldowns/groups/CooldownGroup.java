@@ -15,6 +15,7 @@ public record CooldownGroup(
         int cooldown,
         List<World> activeWorlds,
         Set<Material> items,
+        Set<PotionEffectType> baseEffects,
         Set<PotionEffectType> potionEffects,
         TimedExpiringMap<String, ItemStack> playerCooldowns,
         boolean ignoreCooldown,
